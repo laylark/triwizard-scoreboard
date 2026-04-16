@@ -13,6 +13,10 @@ const defaultScores = {
 	ravenclaw: 0,
 	slytherin: 0,
 };
+const defaultGameState = {
+	scores: defaultScores,
+	isGameEnded: false,
+};
 
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -22,21 +26,24 @@ async function ensureScoresFile() {
 		await fs.access(scoresFilePath);
 	} catch {
 		await fs.mkdir(path.dirname(scoresFilePath), { recursive: true });
-		await writeScores(defaultScores);
+		await writeGameState(defaultGameState);
 	}
 }
 
-async function readScores() {
+async function readGameState() {
 	await ensureScoresFile();
 
 	try {
 		const fileContents = await fs.readFile(scoresFilePath, "utf8");
-		const parsedScores = JSON.parse(fileContents);
+		const parsedState = JSON.parse(fileContents);
 
-		return normalizeScores(parsedScores);
+		return normalizeGameState(parsedState);
 	} catch {
-		await writeScores(defaultScores);
-		return { ...defaultScores };
+		await writeGameState(defaultGameState);
+		return {
+			scores: { ...defaultScores },
+			isGameEnded: false,
+		};
 	}
 }
 
@@ -54,16 +61,25 @@ function normalizeScores(candidateScores) {
 	return normalizedScores;
 }
 
-async function writeScores(scores) {
-	const normalizedScores = normalizeScores(scores);
+function normalizeGameState(candidateState) {
+	const candidateScores = candidateState?.scores ?? candidateState;
+
+	return {
+		scores: normalizeScores(candidateScores),
+		isGameEnded: candidateState?.isGameEnded === true,
+	};
+}
+
+async function writeGameState(gameState) {
+	const normalizedGameState = normalizeGameState(gameState);
 	await fs.mkdir(path.dirname(scoresFilePath), { recursive: true });
-	await fs.writeFile(scoresFilePath, JSON.stringify(normalizedScores, null, 2));
-	return normalizedScores;
+	await fs.writeFile(scoresFilePath, JSON.stringify(normalizedGameState, null, 2));
+	return normalizedGameState;
 }
 
 app.get("/api/scores", async (_request, response) => {
-	const scores = await readScores();
-	response.json({ scores });
+	const gameState = await readGameState();
+	response.json(gameState);
 });
 
 app.post("/api/scores/update", async (request, response) => {
@@ -74,16 +90,42 @@ app.post("/api/scores/update", async (request, response) => {
 		return;
 	}
 
-	const currentScores = await readScores();
-	currentScores[teamName] += pointsToAdd;
-	const scores = await writeScores(currentScores);
+	const currentGameState = await readGameState();
 
-	response.json({ scores });
+	if (currentGameState.isGameEnded) {
+		response.status(409).json({ error: "The game has already ended." });
+		return;
+	}
+
+	currentGameState.scores[teamName] += pointsToAdd;
+	const updatedGameState = await writeGameState(currentGameState);
+
+	response.json(updatedGameState);
 });
 
 app.post("/api/scores/reset", async (_request, response) => {
-	const scores = await writeScores(defaultScores);
-	response.json({ scores });
+	const gameState = await writeGameState(defaultGameState);
+	response.json(gameState);
+});
+
+app.post("/api/scores/end", async (_request, response) => {
+	const currentGameState = await readGameState();
+	const gameState = await writeGameState({
+		...currentGameState,
+		isGameEnded: true,
+	});
+
+	response.json(gameState);
+});
+
+app.post("/api/scores/resume", async (_request, response) => {
+	const currentGameState = await readGameState();
+	const gameState = await writeGameState({
+		...currentGameState,
+		isGameEnded: false,
+	});
+
+	response.json(gameState);
 });
 
 app.get("*", (_request, response) => {

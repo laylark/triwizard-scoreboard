@@ -1,6 +1,9 @@
 {
-  "gryffindor": 8,
-  "hufflepuff": 4,
-  "ravenclaw": 1,
-  "slytherin": 11
+  "scores": {
+    "gryffindor": 3,
+    "hufflepuff": 1,
+    "ravenclaw": 4,
+    "slytherin": 2
+  },
+  "isGameEnded": false
 }

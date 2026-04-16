@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Triwizard Tournament Scoreboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -17,6 +23,7 @@
           <p class="leaderboard-value" id="current-leader">Tie</p>
         </section>
         <div class="admin-actions" aria-label="Admin controls">
+          <button type="button" class="end-game-button" id="end-game">End Game</button>
           <button type="button" class="reset-button" id="reset-scores">Clear Scores</button>
           <button type="button" class="logout-button" id="logout-admin">Log Out</button>
         </div>
@@ -76,6 +83,18 @@
         </article>
       </section>
     </main>
+
+    <section class="winner-screen" id="winner-screen" aria-live="polite" aria-label="Final winner screen">
+      <div class="winner-card">
+        <p class="winner-kicker">Triwizard Final Result</p>
+        <h2 class="winner-title" id="winner-title">Tie</h2>
+        <p class="winner-subtitle" id="winner-subtitle">The tournament has concluded.</p>
+        <div class="winner-actions" aria-label="Winner screen actions">
+          <button type="button" class="resume-game-button" id="resume-game">Resume Game</button>
+          <button type="button" class="restart-game-button" id="restart-game">Start New Game</button>
+        </div>
+      </div>
+    </section>
 
     <script src="script.js"></script>
   </body>

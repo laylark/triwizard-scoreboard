@@ -7,6 +7,7 @@ const SCORES_API_URL = "/api/scores";
 const state = {
 	isAdmin: false,
 	isLoading: false,
+	isGameEnded: false,
 	scores: {
 		gryffindor: 0,
 		hufflepuff: 0,
@@ -24,11 +25,19 @@ const teamLabels = {
 
 const pageBody = document.body;
 const teamCards = document.querySelectorAll(".team[data-team]");
+const endGameButton = document.querySelector("#end-game");
 const resetButton = document.querySelector("#reset-scores");
+const resumeGameButton = document.querySelector("#resume-game");
+const restartGameButton = document.querySelector("#restart-game");
 const logoutButton = document.querySelector("#logout-admin");
 const currentLeader = document.querySelector("#current-leader");
+const winnerTitle = document.querySelector("#winner-title");
+const winnerSubtitle = document.querySelector("#winner-subtitle");
 
-function applyScores(nextScores) {
+function applyGameState(payload) {
+	const nextScores = payload?.scores;
+	state.isGameEnded = payload?.isGameEnded === true;
+
 	Object.keys(state.scores).forEach((teamName) => {
 		const savedValue = nextScores?.[teamName];
 
@@ -48,6 +57,21 @@ function loadAdminState() {
 
 function renderAdminMode() {
 	pageBody.classList.toggle("admin-mode", state.isAdmin);
+}
+
+function renderWinnerScreen() {
+	const winnerName = getCurrentLeader();
+	pageBody.classList.toggle("game-ended", state.isGameEnded);
+
+	if (winnerTitle) {
+		winnerTitle.textContent = winnerName;
+	}
+
+	if (winnerSubtitle) {
+		winnerSubtitle.textContent = winnerName === "Tie"
+			? "The tournament ends in a tie."
+			: `${winnerName} claims the Triwizard Cup.`;
+	}
 }
 
 function promptForAdminAccess() {
@@ -76,7 +100,7 @@ function renderScores() {
 
 		scoreElement.textContent = String(state.scores[teamName] ?? 0);
 		controls.forEach((button) => {
-			button.disabled = state.isLoading;
+			button.disabled = state.isLoading || state.isGameEnded;
 		});
 	});
 
@@ -84,7 +108,20 @@ function renderScores() {
 		resetButton.disabled = state.isLoading;
 	}
 
+	if (endGameButton) {
+		endGameButton.disabled = state.isLoading || state.isGameEnded;
+	}
+
+	if (restartGameButton) {
+		restartGameButton.disabled = state.isLoading;
+	}
+
+	if (resumeGameButton) {
+		resumeGameButton.disabled = state.isLoading;
+	}
+
 	renderLeader();
+	renderWinnerScreen();
 }
 
 function getCurrentLeader() {
@@ -119,7 +156,7 @@ async function fetchScores() {
 		}
 
 		const payload = await response.json();
-		applyScores(payload.scores);
+		applyGameState(payload);
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -129,7 +166,7 @@ async function fetchScores() {
 }
 
 async function updateScore(teamName, pointsToAdd) {
-	if (!state.isAdmin || !(teamName in state.scores)) {
+	if (!state.isAdmin || state.isGameEnded || !(teamName in state.scores)) {
 		return;
 	}
 
@@ -150,7 +187,7 @@ async function updateScore(teamName, pointsToAdd) {
 		}
 
 		const payload = await response.json();
-		applyScores(payload.scores);
+		applyGameState(payload);
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -177,7 +214,7 @@ async function resetScores() {
 		}
 
 		const payload = await response.json();
-		applyScores(payload.scores);
+		applyGameState(payload);
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -194,9 +231,63 @@ function logoutAdmin() {
 	renderScores();
 }
 
+async function endGame() {
+	if (!state.isAdmin || state.isGameEnded) {
+		return;
+	}
+
+	state.isLoading = true;
+	renderScores();
+
+	try {
+		const response = await fetch(`${SCORES_API_URL}/end`, {
+			method: "POST",
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to end game.");
+		}
+
+		const payload = await response.json();
+		applyGameState(payload);
+	} catch (error) {
+		console.error(error);
+	} finally {
+		state.isLoading = false;
+		renderScores();
+	}
+}
+
+async function resumeGame() {
+	if (!state.isAdmin || !state.isGameEnded) {
+		return;
+	}
+
+	state.isLoading = true;
+	renderScores();
+
+	try {
+		const response = await fetch(`${SCORES_API_URL}/resume`, {
+			method: "POST",
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to resume game.");
+		}
+
+		const payload = await response.json();
+		applyGameState(payload);
+	} catch (error) {
+		console.error(error);
+	} finally {
+		state.isLoading = false;
+		renderScores();
+	}
+}
+
 teamCards.forEach((teamCard) => {
 	teamCard.addEventListener("click", async (event) => {
-		if (!state.isAdmin) {
+		if (!state.isAdmin || state.isGameEnded) {
 			return;
 		}
 
@@ -219,6 +310,18 @@ teamCards.forEach((teamCard) => {
 
 resetButton?.addEventListener("click", async () => {
 	await resetScores();
+});
+
+restartGameButton?.addEventListener("click", async () => {
+	await resetScores();
+});
+
+resumeGameButton?.addEventListener("click", async () => {
+	await resumeGame();
+});
+
+endGameButton?.addEventListener("click", async () => {
+	await endGame();
 });
 
 logoutButton?.addEventListener("click", () => {

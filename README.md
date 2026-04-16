@@ -9,6 +9,7 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 - Distinct house color treatments
 - Shared score display for each house, starting at 0
 - Admin mode gate for score controls
+- Admin-only end game flow with final winner screen
 - Small Express backend with JSON score storage
 
 ## Requirements
@@ -51,6 +52,7 @@ If you want to run on a different port, set the `PORT` environment variable befo
 - `GET /api/scores` - load current scores
 - `POST /api/scores/update` - add points to a team
 - `POST /api/scores/reset` - reset all scores to 0
+- `POST /api/scores/end` - freeze the game and reveal the final winner
 
 The backend writes the current scores to `data/scores.json`, so all users who load the same deployed app see the same values.
 
