@@ -15,10 +15,18 @@ const state = {
 	},
 };
 
+const teamLabels = {
+	gryffindor: "Gryffindor",
+	hufflepuff: "Hufflepuff",
+	ravenclaw: "Ravenclaw",
+	slytherin: "Slytherin",
+};
+
 const pageBody = document.body;
 const teamCards = document.querySelectorAll(".team[data-team]");
 const resetButton = document.querySelector("#reset-scores");
 const logoutButton = document.querySelector("#logout-admin");
+const currentLeader = document.querySelector("#current-leader");
 
 function applyScores(nextScores) {
 	Object.keys(state.scores).forEach((teamName) => {
@@ -75,6 +83,28 @@ function renderScores() {
 	if (resetButton) {
 		resetButton.disabled = state.isLoading;
 	}
+
+	renderLeader();
+}
+
+function getCurrentLeader() {
+	const entries = Object.entries(state.scores);
+	const highestScore = Math.max(...entries.map(([, score]) => score));
+	const leaders = entries.filter(([, score]) => score === highestScore);
+
+	if (leaders.length !== 1) {
+		return "Tie";
+	}
+
+	return teamLabels[leaders[0][0]] ?? "Tie";
+}
+
+function renderLeader() {
+	if (!currentLeader) {
+		return;
+	}
+
+	currentLeader.textContent = getCurrentLeader();
 }
 
 async function fetchScores() {
