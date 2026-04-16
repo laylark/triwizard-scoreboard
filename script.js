@@ -1,6 +1,5 @@
 "use strict";
 
-const ADMIN_STORAGE_KEY = "triwizard-scoreboard-admin";
 const ADMIN_PASSWORD = "triwizard";
 const SCORES_API_URL = "/api/scores";
 
@@ -26,6 +25,7 @@ const teamLabels = {
 const pageBody = document.body;
 const teamCards = document.querySelectorAll(".team[data-team]");
 const teamsContainer = document.querySelector(".teams");
+const adminLoginButton = document.querySelector("#admin-login");
 const endGameButton = document.querySelector("#end-game");
 const resetButton = document.querySelector("#reset-scores");
 const resumeGameButton = document.querySelector("#resume-game");
@@ -49,16 +49,11 @@ function applyGameState(payload) {
 	});
 }
 
-function saveAdminState() {
-	localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(state.isAdmin));
-}
-
-function loadAdminState() {
-	state.isAdmin = localStorage.getItem(ADMIN_STORAGE_KEY) === "true";
-}
-
 function renderAdminMode() {
 	pageBody.classList.toggle("admin-mode", state.isAdmin);
+	if (adminLoginButton) {
+		adminLoginButton.hidden = state.isAdmin;
+	}
 	renderTeamOrder();
 }
 
@@ -86,8 +81,8 @@ function promptForAdminAccess() {
 
 	if (enteredPassword === ADMIN_PASSWORD) {
 		state.isAdmin = true;
-		saveAdminState();
 		renderAdminMode();
+		renderScores();
 	}
 }
 
@@ -263,7 +258,6 @@ async function resetScores() {
 }
 
 function logoutAdmin() {
-	localStorage.removeItem(ADMIN_STORAGE_KEY);
 	state.isAdmin = false;
 
 	renderAdminMode();
@@ -367,7 +361,9 @@ logoutButton?.addEventListener("click", () => {
 	logoutAdmin();
 });
 
-loadAdminState();
+adminLoginButton?.addEventListener("click", () => {
+	promptForAdminAccess();
+});
+
 renderAdminMode();
-promptForAdminAccess();
 fetchScores();
