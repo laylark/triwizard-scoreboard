@@ -13,15 +13,17 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="ambient-scene" aria-hidden="true">
+      <span class="ambient-layer ambient-layer-castle"></span>
+      <span class="ambient-layer ambient-layer-glow"></span>
+      <span class="ambient-layer ambient-layer-sparks"></span>
+      <span class="ambient-layer ambient-layer-trails"></span>
+    </div>
     <main class="page">
       <header class="page-header">
         <p class="eyebrow">Hogwarts House Standings</p>
         <h1>Triwizard Tournament Scoreboard</h1>
         <p class="intro">A magical tally of house points, presented in the Great Hall after dark.</p>
-        <section class="leaderboard" aria-label="Current leader">
-          <p class="leaderboard-label">Current Leader</p>
-          <p class="leaderboard-value" id="current-leader">Tie</p>
-        </section>
         <div class="admin-actions" aria-label="Admin controls">
           <button type="button" class="end-game-button" id="end-game">End Game</button>
           <button type="button" class="reset-button" id="reset-scores">Clear Scores</button>
@@ -81,6 +83,11 @@
             <button type="button" class="score-button" data-points="4">+4</button>
           </div>
         </article>
+      </section>
+
+      <section class="leaderboard leaderboard-secondary" aria-label="Current leader">
+        <p class="leaderboard-label">Current Leader</p>
+        <p class="leaderboard-value" id="current-leader">Tie</p>
       </section>
     </main>
 

@@ -25,6 +25,7 @@ const teamLabels = {
 
 const pageBody = document.body;
 const teamCards = document.querySelectorAll(".team[data-team]");
+const teamsContainer = document.querySelector(".teams");
 const endGameButton = document.querySelector("#end-game");
 const resetButton = document.querySelector("#reset-scores");
 const resumeGameButton = document.querySelector("#resume-game");
@@ -33,6 +34,7 @@ const logoutButton = document.querySelector("#logout-admin");
 const currentLeader = document.querySelector("#current-leader");
 const winnerTitle = document.querySelector("#winner-title");
 const winnerSubtitle = document.querySelector("#winner-subtitle");
+const defaultTeamOrder = ["gryffindor", "hufflepuff", "ravenclaw", "slytherin"];
 
 function applyGameState(payload) {
 	const nextScores = payload?.scores;
@@ -57,6 +59,7 @@ function loadAdminState() {
 
 function renderAdminMode() {
 	pageBody.classList.toggle("admin-mode", state.isAdmin);
+	renderTeamOrder();
 }
 
 function renderWinnerScreen() {
@@ -89,6 +92,8 @@ function promptForAdminAccess() {
 }
 
 function renderScores() {
+	renderTeamOrder();
+
 	teamCards.forEach((teamCard) => {
 		const teamName = teamCard.dataset.team;
 		const scoreElement = teamCard.querySelector(".score");
@@ -122,6 +127,40 @@ function renderScores() {
 
 	renderLeader();
 	renderWinnerScreen();
+}
+
+function getSortedTeamNames() {
+	if (state.isAdmin) {
+		return [...defaultTeamOrder];
+	}
+
+	return [...defaultTeamOrder].sort((leftTeam, rightTeam) => {
+		const scoreDifference = (state.scores[rightTeam] ?? 0) - (state.scores[leftTeam] ?? 0);
+
+		if (scoreDifference !== 0) {
+			return scoreDifference;
+		}
+
+		return defaultTeamOrder.indexOf(leftTeam) - defaultTeamOrder.indexOf(rightTeam);
+	});
+}
+
+function renderTeamOrder() {
+	if (!teamsContainer) {
+		return;
+	}
+
+	const cardsByTeam = new Map(
+		[...teamCards].map((teamCard) => [teamCard.dataset.team, teamCard])
+	);
+
+	getSortedTeamNames().forEach((teamName) => {
+		const teamCard = cardsByTeam.get(teamName);
+
+		if (teamCard) {
+			teamsContainer.appendChild(teamCard);
+		}
+	});
 }
 
 function getCurrentLeader() {
