@@ -1,8 +1,36 @@
 {
+  "baseScores": {
+    "gryffindor": 0,
+    "hufflepuff": 0,
+    "ravenclaw": 0,
+    "slytherin": 0
+  },
+  "rounds": [
+    {
+      "id": "c419b555-e44c-4924-bc2d-21c289a01f5a",
+      "label": "Round 1",
+      "placements": {
+        "gryffindor": 1,
+        "hufflepuff": 3,
+        "ravenclaw": 2,
+        "slytherin": 4
+      }
+    },
+    {
+      "id": "decf6aa5-8630-49b1-a51d-03232f35d05e",
+      "label": "Round 2",
+      "placements": {
+        "gryffindor": 1,
+        "hufflepuff": 2,
+        "ravenclaw": 3,
+        "slytherin": 4
+      }
+    }
+  ],
   "scores": {
-    "gryffindor": 3,
-    "hufflepuff": 1,
-    "ravenclaw": 4,
+    "gryffindor": 8,
+    "hufflepuff": 5,
+    "ravenclaw": 5,
     "slytherin": 2
   },
   "isGameEnded": false

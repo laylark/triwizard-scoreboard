@@ -27,6 +27,8 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 - `data/scores.json` - shared persisted score data
 - `assets/` - house crest SVGs and background art
 - `package.json` - backend scripts and dependencies
+- `Dockerfile` - single-stage Node image for production
+- `docker-compose.yml` - runs the container with persistent data volume
 
 ## Run Locally
 
@@ -40,6 +42,18 @@ npm start
 Then open `http://localhost:3000` in your browser.
 
 If you want to run on a different port, set the `PORT` environment variable before starting the server.
+
+## Deploy with Docker
+
+Build and run the container:
+
+```bash
+docker compose up -d --build
+```
+
+`data/scores.json` is bind-mounted from the host so score data persists across restarts and redeploys. The container binds to `127.0.0.1:3000` and expects a reverse proxy (nginx) in front of it for public traffic.
+
+For full server setup instructions including nginx config, SSL via certbot, and redeploy steps, see [DEPLOY.md](DEPLOY.md).
 
 ## Admin Access
 
