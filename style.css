@@ -402,7 +402,6 @@ body::after {
 .team {
   position: relative;
   overflow: hidden;
-  min-height: 240px;
   padding: 1.5rem;
   border: 1px solid var(--border);
   border-radius: 1.35rem;
@@ -474,20 +473,25 @@ body::after {
   font-family: "Cinzel", serif;
 }
 
-.team-badge {
+.score-row {
   position: relative;
   z-index: 1;
-  align-self: flex-start;
-  margin-bottom: auto;
-  padding: 0.42rem 0.72rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  color: #f7eed8;
-  background: rgba(255, 255, 255, 0.06);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-family: "Cinzel", serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.score-row .score {
+  margin: 0;
+}
+
+.team-badge {
+  flex-shrink: 0;
+  width: clamp(2.25rem, 4vw, 3rem);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--team-glow) 55%, transparent));
 }
 
 .score {
@@ -974,7 +978,6 @@ body.game-ended .winner-card {
   }
 
   .team {
-    min-height: 185px;
     padding: 1.15rem;
   }
 
@@ -987,9 +990,12 @@ body.game-ended .winner-card {
     font-size: clamp(2.35rem, 10vw, 3.1rem);
   }
 
-  .score-label,
-  .team-badge {
+  .score-label {
     font-size: 0.68rem;
+  }
+
+  .team-badge {
+    width: clamp(1.85rem, 8vw, 2.5rem);
   }
 
   .leaderboard-secondary {
