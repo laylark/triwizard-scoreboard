@@ -226,6 +226,7 @@ app.delete("/api/scores/rounds/:roundId", async (request, response) => {
 
 app.post("/api/scores/reset", async (_request, response) => {
 	const gameState = await writeGameState(defaultGameState);
+	io.emit("scoreUpdate", gameState);
 	response.json(gameState);
 });
 
@@ -236,6 +237,7 @@ app.post("/api/scores/end", async (_request, response) => {
 		isGameEnded: true,
 	});
 
+	io.emit("scoreUpdate", gameState);
 	response.json(gameState);
 });
 
@@ -246,6 +248,7 @@ app.post("/api/scores/resume", async (_request, response) => {
 		isGameEnded: false,
 	});
 
+	io.emit("scoreUpdate", gameState);
 	response.json(gameState);
 });
 

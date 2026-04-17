@@ -8,6 +8,7 @@ const PLACE_POINTS = {
 	3: 2,
 	4: 1,
 };
+const TOTAL_ROUND_POINTS = Object.values(PLACE_POINTS).reduce((sum, points) => sum + points, 0);
 const defaultTeamOrder = ["gryffindor", "hufflepuff", "ravenclaw", "slytherin"];
 const defaultScores = {
 	gryffindor: 0,
@@ -26,6 +27,8 @@ const state = {
 	draftRound: createEmptyRoundDraft(),
 	pendingDeleteRoundId: null,
 };
+
+let focusBeforeDeleteModal = null;
 
 const teamLabels = {
 	gryffindor: "Gryffindor",
@@ -352,7 +355,7 @@ function createRoundCard(round) {
 
 	const totalPoints = document.createElement("p");
 	totalPoints.className = "round-card-points";
-	totalPoints.textContent = `${defaultTeamOrder.length + 6} total points awarded`;
+	totalPoints.textContent = `${TOTAL_ROUND_POINTS} total points awarded`;
 
 	header.append(title, totalPoints);
 	roundCard.appendChild(header);
@@ -571,13 +574,21 @@ function openDeleteRoundModal(roundId) {
 		return;
 	}
 
+	focusBeforeDeleteModal = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 	state.pendingDeleteRoundId = roundId;
 	renderDeleteModal();
+	cancelDeleteRoundButton?.focus();
 }
 
 function closeDeleteRoundModal() {
+	const elementToRestoreFocus = focusBeforeDeleteModal;
+	focusBeforeDeleteModal = null;
 	state.pendingDeleteRoundId = null;
 	renderDeleteModal();
+
+	if (elementToRestoreFocus && document.contains(elementToRestoreFocus)) {
+		elementToRestoreFocus.focus();
+	}
 }
 
 async function deleteRound() {
@@ -780,8 +791,29 @@ deleteRoundModal?.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-	if (event.key === "Escape" && state.pendingDeleteRoundId) {
+	if (!state.pendingDeleteRoundId) {
+		return;
+	}
+
+	if (event.key === "Escape") {
 		closeDeleteRoundModal();
+		return;
+	}
+
+	if (event.key !== "Tab" || !cancelDeleteRoundButton || !confirmDeleteRoundButton) {
+		return;
+	}
+
+	const first = cancelDeleteRoundButton;
+	const last = confirmDeleteRoundButton;
+	const active = document.activeElement;
+
+	if (event.shiftKey && (active === first || !deleteRoundModal?.contains(active))) {
+		event.preventDefault();
+		last.focus();
+	} else if (!event.shiftKey && (active === last || !deleteRoundModal?.contains(active))) {
+		event.preventDefault();
+		first.focus();
 	}
 });
 
