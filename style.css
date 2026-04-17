@@ -87,7 +87,7 @@ body::after {
   background:
     radial-gradient(ellipse at 50% 42%, rgba(9, 17, 32, 0) 0%, rgba(9, 17, 32, 0.22) 55%, rgba(3, 6, 13, 0.78) 100%),
     linear-gradient(180deg, rgba(13, 23, 48, 0.42) 0%, rgba(9, 17, 32, 0.05) 28%, rgba(9, 17, 32, 0.1) 62%, rgba(3, 6, 13, 0.82) 100%),
-    url("/assets/hp-castle.webp") center 38% / cover no-repeat;
+    url("assets/hp-castle.webp") center 38% / cover no-repeat;
   opacity: 0.52;
   filter: saturate(0.88) contrast(1.02) brightness(0.92);
   transform-origin: center center;
