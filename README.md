@@ -9,7 +9,7 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 - Distinct house color treatments
 - Shared score display for each house, starting at 0
 - Admin mode gate for score controls
-- Admin-only end game flow with final winner screen
+- Admin-only end game flow with final winner screen, plus the ability to resume a concluded game
 - Small Express backend with JSON score storage
 
 ## Requirements
@@ -24,6 +24,7 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 - `script.js` - client-side rendering, admin mode, and API calls
 - `server.js` - Express server and score API
 - `data/scores.json` - shared persisted score data
+- `assets/` - house crest SVGs and background art
 - `package.json` - backend scripts and dependencies
 
 ## Run Locally
@@ -42,10 +43,10 @@ If you want to run on a different port, set the `PORT` environment variable befo
 ## Admin Access
 
 - Score controls are hidden by default
-- On page load, the app shows a password prompt for admin access
+- Click the castle button in the header to open the password prompt
 - The current admin password is `triwizard`
-- Admin login state is stored in browser `localStorage`
-- Shared scores are not stored in `localStorage`; they are loaded from the backend JSON file
+- Admin login state lives only in memory for the current tab; reloading the page logs you out
+- Shared scores are loaded from the backend JSON file, not from the browser
 
 ## API Endpoints
 
@@ -53,6 +54,7 @@ If you want to run on a different port, set the `PORT` environment variable befo
 - `POST /api/scores/update` - add points to a team
 - `POST /api/scores/reset` - reset all scores to 0
 - `POST /api/scores/end` - freeze the game and reveal the final winner
+- `POST /api/scores/resume` - reopen a concluded game so scoring can continue
 
 The backend writes the current scores to `data/scores.json`, so all users who load the same deployed app see the same values.
 

@@ -13,3 +13,5 @@ Thumbs.db
 node_modules/
 dist/
 build/
+
+.claude/settings.local.json
