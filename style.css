@@ -108,6 +108,11 @@ body::after {
   pointer-events: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .ambient-layer-castle::after {
+    animation: none;
+  }
+}
 .ambient-layer-glow {
   background:
     radial-gradient(circle at 20% 25%, rgba(103, 145, 245, 0.28), transparent 18%),
