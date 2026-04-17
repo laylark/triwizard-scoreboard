@@ -1,7 +1,28 @@
 "use strict";
 
 const ADMIN_PASSWORD = "triwizard";
+const ADMIN_STORAGE_KEY = "triwizardAdmin";
 const SCORES_API_URL = "/api/scores";
+
+function readPersistedAdmin() {
+	try {
+		return window.localStorage?.getItem(ADMIN_STORAGE_KEY) === "true";
+	} catch {
+		return false;
+	}
+}
+
+function writePersistedAdmin(isAdmin) {
+	try {
+		if (isAdmin) {
+			window.localStorage?.setItem(ADMIN_STORAGE_KEY, "true");
+		} else {
+			window.localStorage?.removeItem(ADMIN_STORAGE_KEY);
+		}
+	} catch {
+		// Ignore storage failures (private mode, disabled storage, etc.).
+	}
+}
 const PLACE_POINTS = {
 	1: 4,
 	2: 3,
@@ -18,7 +39,7 @@ const defaultScores = {
 };
 
 const state = {
-	isAdmin: false,
+	isAdmin: readPersistedAdmin(),
 	isLoading: false,
 	isGameEnded: false,
 	baseScores: { ...defaultScores },
@@ -41,7 +62,7 @@ const pageBody = document.body;
 const teamCards = document.querySelectorAll(".team[data-team]");
 const teamsContainer = document.querySelector(".teams");
 const adminLoginButton = document.querySelector("#admin-login");
-const saveRoundButton = document.querySelector("#save-round");
+const saveRoundButtons = document.querySelectorAll(".save-round-button");
 const clearRoundDraftButton = document.querySelector("#clear-round-draft");
 const endGameButton = document.querySelector("#end-game");
 const resetButton = document.querySelector("#reset-scores");
@@ -448,9 +469,10 @@ function renderScores() {
 	renderRoundsPanel();
 	renderDraftStatus();
 
-	if (saveRoundButton) {
-		saveRoundButton.disabled = !state.isAdmin || state.isLoading || state.isGameEnded || !isDraftComplete();
-	}
+	const disableSave = !state.isAdmin || state.isLoading || state.isGameEnded || !isDraftComplete();
+	saveRoundButtons.forEach((button) => {
+		button.disabled = disableSave;
+	});
 
 	if (clearRoundDraftButton) {
 		clearRoundDraftButton.disabled = !state.isAdmin || state.isLoading || state.isGameEnded || isDraftEmpty();
@@ -490,6 +512,7 @@ function promptForAdminAccess() {
 
 	if (enteredPassword === ADMIN_PASSWORD) {
 		state.isAdmin = true;
+		writePersistedAdmin(true);
 		renderAdminMode();
 		renderScores();
 	}
@@ -657,6 +680,7 @@ async function resetScores() {
 
 function logoutAdmin() {
 	state.isAdmin = false;
+	writePersistedAdmin(false);
 	closeDeleteRoundModal();
 	state.draftRound = createEmptyRoundDraft();
 		
@@ -751,8 +775,10 @@ savedRoundsContainer?.addEventListener("click", (event) => {
 	openDeleteRoundModal(button.dataset.roundId);
 });
 
-saveRoundButton?.addEventListener("click", async () => {
-	await saveRound();
+saveRoundButtons.forEach((button) => {
+	button.addEventListener("click", async () => {
+		await saveRound();
+	});
 });
 
 clearRoundDraftButton?.addEventListener("click", () => {
