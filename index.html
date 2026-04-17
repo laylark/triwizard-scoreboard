@@ -24,72 +24,118 @@
         <button type="button" class="admin-login-button" id="admin-login" aria-label="Admin login" title="Admin login">♜</button>
         <p class="eyebrow">Hogwarts House Standings</p>
         <h1>Triwizard Tournament Scoreboard</h1>
-        <p class="intro">A magical tally of house points, presented in the Great Hall after dark.</p>
+        <p class="intro">Track each challenge round, assign every finishing place once, and let the house totals update automatically.</p>
         <div class="admin-actions" aria-label="Admin controls">
+          <button type="button" class="save-round-button" id="save-round">Save Round</button>
+          <button type="button" class="clear-draft-button" id="clear-round-draft">Clear Draft</button>
           <button type="button" class="end-game-button" id="end-game">End Game</button>
-          <button type="button" class="reset-button" id="reset-scores">Clear Scores</button>
+          <button type="button" class="reset-button" id="reset-scores">Start New Game</button>
           <button type="button" class="logout-button" id="logout-admin">Log Out</button>
         </div>
+        <p class="draft-status" id="draft-status" aria-live="polite"></p>
       </header>
+
+      <section class="rounds-panel" aria-labelledby="rounds-heading" hidden>
+        <div class="rounds-panel-header">
+          <div>
+            <p class="rounds-kicker">Round History</p>
+            <h2 id="rounds-heading">Tournament Rounds</h2>
+          </div>
+          <p class="rounds-summary" id="round-summary">No rounds saved yet.</p>
+        </div>
+        <div class="saved-rounds" id="saved-rounds"></div>
+      </section>
 
       <section class="teams" aria-label="Team score sections">
         <article class="team team-gryffindor" data-team="gryffindor">
           <h2>Gryffindor</h2>
-          <p class="score-label">Score</p>
+          <p class="score-label">Total Points</p>
           <div class="score-row">
             <p class="score" aria-label="Gryffindor score"></p>
             <img class="team-badge" src="assets/gryffindor.svg" alt="" aria-hidden="true" />
           </div>
-          <div class="controls" aria-label="Gryffindor score controls">
-            <button type="button" class="score-button" data-points="1">+1</button>
-            <button type="button" class="score-button" data-points="2">+2</button>
-            <button type="button" class="score-button" data-points="3">+3</button>
-            <button type="button" class="score-button" data-points="4">+4</button>
+          <p class="carryover-note" hidden></p>
+          <div class="placements" aria-label="Gryffindor round placements">
+            <p class="placements-label">Rounds</p>
+            <div class="placements-list"></div>
+          </div>
+          <div class="round-assignment" aria-label="Gryffindor current round controls">
+            <p class="placements-label">Current Round</p>
+            <div class="place-controls">
+              <button type="button" class="place-button" data-place="1">1st</button>
+              <button type="button" class="place-button" data-place="2">2nd</button>
+              <button type="button" class="place-button" data-place="3">3rd</button>
+              <button type="button" class="place-button" data-place="4">4th</button>
+            </div>
           </div>
         </article>
 
         <article class="team team-hufflepuff" data-team="hufflepuff">
           <h2>Hufflepuff</h2>
-          <p class="score-label">Score</p>
+          <p class="score-label">Total Points</p>
           <div class="score-row">
             <p class="score" aria-label="Hufflepuff score"></p>
             <img class="team-badge" src="assets/hufflepuff.svg" alt="" aria-hidden="true" />
           </div>
-          <div class="controls" aria-label="Hufflepuff score controls">
-            <button type="button" class="score-button" data-points="1">+1</button>
-            <button type="button" class="score-button" data-points="2">+2</button>
-            <button type="button" class="score-button" data-points="3">+3</button>
-            <button type="button" class="score-button" data-points="4">+4</button>
+          <p class="carryover-note" hidden></p>
+          <div class="placements" aria-label="Hufflepuff round placements">
+            <p class="placements-label">Rounds</p>
+            <div class="placements-list"></div>
+          </div>
+          <div class="round-assignment" aria-label="Hufflepuff current round controls">
+            <p class="placements-label">Current Round</p>
+            <div class="place-controls">
+              <button type="button" class="place-button" data-place="1">1st</button>
+              <button type="button" class="place-button" data-place="2">2nd</button>
+              <button type="button" class="place-button" data-place="3">3rd</button>
+              <button type="button" class="place-button" data-place="4">4th</button>
+            </div>
           </div>
         </article>
 
         <article class="team team-ravenclaw" data-team="ravenclaw">
           <h2>Ravenclaw</h2>
-          <p class="score-label">Score</p>
+          <p class="score-label">Total Points</p>
           <div class="score-row">
             <p class="score" aria-label="Ravenclaw score"></p>
             <img class="team-badge" src="assets/ravenclaw.svg" alt="" aria-hidden="true" />
           </div>
-          <div class="controls" aria-label="Ravenclaw score controls">
-            <button type="button" class="score-button" data-points="1">+1</button>
-            <button type="button" class="score-button" data-points="2">+2</button>
-            <button type="button" class="score-button" data-points="3">+3</button>
-            <button type="button" class="score-button" data-points="4">+4</button>
+          <p class="carryover-note" hidden></p>
+          <div class="placements" aria-label="Ravenclaw round placements">
+            <p class="placements-label">Rounds</p>
+            <div class="placements-list"></div>
+          </div>
+          <div class="round-assignment" aria-label="Ravenclaw current round controls">
+            <p class="placements-label">Current Round</p>
+            <div class="place-controls">
+              <button type="button" class="place-button" data-place="1">1st</button>
+              <button type="button" class="place-button" data-place="2">2nd</button>
+              <button type="button" class="place-button" data-place="3">3rd</button>
+              <button type="button" class="place-button" data-place="4">4th</button>
+            </div>
           </div>
         </article>
 
         <article class="team team-slytherin" data-team="slytherin">
           <h2>Slytherin</h2>
-          <p class="score-label">Score</p>
+          <p class="score-label">Total Points</p>
           <div class="score-row">
             <p class="score" aria-label="Slytherin score"></p>
             <img class="team-badge" src="assets/slytherin.svg" alt="" aria-hidden="true" />
           </div>
-          <div class="controls" aria-label="Slytherin score controls">
-            <button type="button" class="score-button" data-points="1">+1</button>
-            <button type="button" class="score-button" data-points="2">+2</button>
-            <button type="button" class="score-button" data-points="3">+3</button>
-            <button type="button" class="score-button" data-points="4">+4</button>
+          <p class="carryover-note" hidden></p>
+          <div class="placements" aria-label="Slytherin round placements">
+            <p class="placements-label">Rounds</p>
+            <div class="placements-list"></div>
+          </div>
+          <div class="round-assignment" aria-label="Slytherin current round controls">
+            <p class="placements-label">Current Round</p>
+            <div class="place-controls">
+              <button type="button" class="place-button" data-place="1">1st</button>
+              <button type="button" class="place-button" data-place="2">2nd</button>
+              <button type="button" class="place-button" data-place="3">3rd</button>
+              <button type="button" class="place-button" data-place="4">4th</button>
+            </div>
           </div>
         </article>
       </section>
@@ -112,6 +158,19 @@
       </div>
     </section>
 
+    <section class="modal-backdrop" id="delete-round-modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-round-title">
+        <p class="modal-kicker">Delete Round</p>
+        <h2 class="modal-title" id="delete-round-title">Remove this round?</h2>
+        <p class="modal-copy" id="delete-round-message">Deleting a round removes all of the points awarded in that round.</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-cancel-button" id="cancel-delete-round">Cancel</button>
+          <button type="button" class="modal-confirm-button" id="confirm-delete-round">Delete Round</button>
+        </div>
+      </div>
+    </section>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

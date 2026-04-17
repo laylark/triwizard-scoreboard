@@ -1,9 +1,16 @@
 {
+  "baseScores": {
+    "gryffindor": 0,
+    "hufflepuff": 0,
+    "ravenclaw": 0,
+    "slytherin": 0
+  },
+  "rounds": [],
   "scores": {
-    "gryffindor": 3,
-    "hufflepuff": 1,
-    "ravenclaw": 4,
-    "slytherin": 2
+    "gryffindor": 0,
+    "hufflepuff": 0,
+    "ravenclaw": 0,
+    "slytherin": 0
   },
   "isGameEnded": false
 }
