@@ -49,6 +49,7 @@ const currentLeader = document.querySelector("#current-leader");
 const winnerTitle = document.querySelector("#winner-title");
 const winnerSubtitle = document.querySelector("#winner-subtitle");
 const draftStatus = document.querySelector("#draft-status");
+const roundsPanel = document.querySelector(".rounds-panel");
 const roundSummary = document.querySelector("#round-summary");
 const savedRoundsContainer = document.querySelector("#saved-rounds");
 const deleteRoundModal = document.querySelector("#delete-round-modal");
@@ -384,6 +385,14 @@ function createRoundCard(round) {
 
 function renderRoundsPanel() {
 	if (!savedRoundsContainer || !roundSummary) {
+		return;
+	}
+
+	if (roundsPanel) {
+		roundsPanel.hidden = !state.isAdmin;
+	}
+
+	if (!state.isAdmin) {
 		return;
 	}
 
