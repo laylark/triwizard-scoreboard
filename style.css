@@ -326,9 +326,14 @@ body::after {
   margin-top: 1.25rem;
 }
 
+.save-round-button,
+.clear-draft-button,
 .end-game-button,
 .reset-button,
-.logout-button {
+.logout-button,
+.modal-cancel-button,
+.modal-confirm-button,
+.delete-round-button {
   margin-top: 1.25rem;
   border: 1px solid rgba(215, 178, 105, 0.22);
   border-radius: 999px;
@@ -347,28 +352,58 @@ body::after {
     box-shadow 120ms ease;
 }
 
+.save-round-button,
+.clear-draft-button,
 .end-game-button,
 .reset-button,
-.logout-button {
+.logout-button,
+.modal-cancel-button,
+.modal-confirm-button,
+.delete-round-button {
   margin-top: 0;
 }
 
+.save-round-button:hover,
+.save-round-button:focus-visible,
+.clear-draft-button:hover,
+.clear-draft-button:focus-visible,
 .end-game-button:hover,
 .end-game-button:focus-visible,
 .reset-button:hover,
 .reset-button:focus-visible,
 .logout-button:hover,
-.logout-button:focus-visible {
+.logout-button:focus-visible,
+.modal-cancel-button:hover,
+.modal-cancel-button:focus-visible,
+.modal-confirm-button:hover,
+.modal-confirm-button:focus-visible,
+.delete-round-button:hover,
+.delete-round-button:focus-visible {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.09);
   border-color: rgba(212, 179, 111, 0.48);
   box-shadow: 0 0 0 3px rgba(212, 179, 111, 0.08);
 }
 
+.save-round-button:focus-visible,
+.clear-draft-button:focus-visible,
 .end-game-button:focus-visible,
 .reset-button:focus-visible,
-.logout-button:focus-visible {
+.logout-button:focus-visible,
+.modal-cancel-button:focus-visible,
+.modal-confirm-button:focus-visible,
+.delete-round-button:focus-visible {
   outline: none;
+}
+
+.save-round-button {
+  border-color: rgba(128, 219, 167, 0.34);
+  background: linear-gradient(180deg, rgba(30, 103, 64, 0.4), rgba(13, 48, 28, 0.25));
+}
+
+.clear-draft-button,
+.modal-cancel-button {
+  border-color: rgba(122, 163, 255, 0.28);
 }
 
 .end-game-button {
@@ -381,6 +416,126 @@ body::after {
 .end-game-button:focus-visible {
   border-color: rgba(232, 145, 111, 0.56);
   box-shadow: 0 0 0 3px rgba(196, 86, 56, 0.12);
+}
+
+.modal-confirm-button,
+.delete-round-button {
+  border-color: rgba(196, 86, 56, 0.38);
+  background: linear-gradient(180deg, rgba(140, 38, 20, 0.44), rgba(84, 16, 10, 0.28));
+}
+
+.draft-status {
+  display: none;
+  width: min(640px, 100%);
+  margin: 1rem auto 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(212, 179, 111, 0.18);
+  border-radius: 1rem;
+  background: rgba(7, 14, 28, 0.45);
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+body.admin-mode .draft-status {
+  display: block;
+}
+
+.rounds-panel {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding: 1.3rem;
+  border: 1px solid rgba(212, 179, 111, 0.18);
+  border-radius: 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    rgba(8, 15, 29, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.rounds-panel-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rounds-kicker {
+  margin: 0 0 0.35rem;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-family: "Cinzel", serif;
+}
+
+.rounds-panel h2 {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+}
+
+.rounds-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: right;
+}
+
+.saved-rounds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.round-card {
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.1rem;
+  background: rgba(9, 16, 31, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.round-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.9rem;
+}
+
+.round-card-title,
+.round-card-points {
+  margin: 0;
+}
+
+.round-card-title {
+  font-family: "Cinzel", serif;
+  font-size: 1.05rem;
+}
+
+.round-card-points {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.round-card-standings,
+.placements-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.delete-round-button {
+  display: none;
+  width: 100%;
+  margin-top: 0.9rem;
+}
+
+body.admin-mode .delete-round-button {
+  display: inline-flex;
+  justify-content: center;
 }
 
 .teams {
@@ -510,24 +665,98 @@ body::after {
   text-shadow: 0 0 18px color-mix(in srgb, var(--team-glow) 45%, transparent);
 }
 
-.controls {
+.carryover-note {
   position: relative;
   z-index: 1;
-  display: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-  margin-top: 1.1rem;
+  margin: 0.55rem 0 0;
+  color: rgba(243, 234, 210, 0.78);
+  font-size: 0.92rem;
+}
+
+.placements,
+.round-assignment {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+}
+
+.placements-label {
+  margin: 0 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-family: "Cinzel", serif;
 }
 
 body.admin-mode .admin-actions {
   display: flex;
 }
 
-body.admin-mode .controls {
-  display: grid;
+.round-assignment {
+  display: none;
 }
 
-.score-button {
+body.admin-mode .round-assignment {
+  display: block;
+}
+
+.empty-pill,
+.placement-pill {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.95rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.empty-pill {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.placement-pill {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.placement-pill-label {
+  color: var(--muted);
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.placement-pill-value {
+  text-align: right;
+  font-size: 0.95rem;
+}
+
+.place-1 {
+  border-color: rgba(255, 222, 147, 0.28);
+}
+
+.place-2 {
+  border-color: rgba(198, 220, 255, 0.24);
+}
+
+.place-3 {
+  border-color: rgba(204, 164, 134, 0.24);
+}
+
+.place-4 {
+  border-color: rgba(143, 214, 167, 0.22);
+}
+
+.place-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.place-button {
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 0.85rem;
   padding: 0.7rem 0.8rem;
@@ -543,23 +772,39 @@ body.admin-mode .controls {
     box-shadow 120ms ease;
 }
 
-.score-button:hover,
-.score-button:focus-visible {
+.place-button:hover,
+.place-button:focus-visible {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
-.score-button:focus-visible {
+.place-button:focus-visible {
   outline: none;
 }
 
-.score-button:disabled,
+.place-button.is-active {
+  border-color: rgba(255, 225, 158, 0.5);
+  background: linear-gradient(180deg, rgba(128, 90, 28, 0.46), rgba(72, 43, 8, 0.3));
+  box-shadow: 0 0 0 3px rgba(212, 179, 111, 0.08);
+}
+
+.place-button.is-locked {
+  opacity: 0.45;
+}
+
+.place-button:disabled,
+.save-round-button:disabled,
+.clear-draft-button:disabled,
 .end-game-button:disabled,
 .reset-button:disabled,
+.logout-button:disabled,
 .resume-game-button:disabled,
-.restart-game-button:disabled {
+.restart-game-button:disabled,
+.delete-round-button:disabled,
+.modal-confirm-button:disabled,
+.modal-cancel-button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
@@ -705,24 +950,84 @@ body.game-ended .winner-card {
   }
 }
 
-.team-gryffindor .score-button:hover,
-.team-gryffindor .score-button:focus-visible {
+.team-gryffindor .place-button:hover,
+.team-gryffindor .place-button:focus-visible {
   border-color: rgba(245, 200, 109, 0.45);
 }
 
-.team-hufflepuff .score-button:hover,
-.team-hufflepuff .score-button:focus-visible {
+.team-hufflepuff .place-button:hover,
+.team-hufflepuff .place-button:focus-visible {
   border-color: rgba(255, 226, 123, 0.45);
 }
 
-.team-ravenclaw .score-button:hover,
-.team-ravenclaw .score-button:focus-visible {
+.team-ravenclaw .place-button:hover,
+.team-ravenclaw .place-button:focus-visible {
   border-color: rgba(154, 195, 255, 0.45);
 }
 
-.team-slytherin .score-button:hover,
-.team-slytherin .score-button:focus-visible {
+.team-slytherin .place-button:hover,
+.team-slytherin .place-button:focus-visible {
   border-color: rgba(131, 224, 169, 0.45);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(2, 5, 11, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  padding: 1.8rem;
+  border: 1px solid rgba(215, 178, 105, 0.26);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(21, 31, 58, 0.96), rgba(8, 12, 24, 0.98)),
+    rgba(10, 16, 31, 0.92);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
+}
+
+.modal-kicker {
+  margin: 0;
+  color: var(--gold);
+  font-family: "Cinzel", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.modal-title {
+  margin: 0.9rem 0 0;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.modal-copy {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 .team-gryffindor {
@@ -924,12 +1229,38 @@ body.game-ended .winner-card {
 }
 
 @media (max-width: 1100px) {
+  .rounds-panel-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .rounds-summary {
+    text-align: left;
+  }
+
   .teams {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 700px) {
+  .rounds-panel {
+    padding: 1rem;
+  }
+
+  .saved-rounds {
+    grid-template-columns: 1fr;
+  }
+
+  .placement-pill {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .placement-pill-value {
+    text-align: left;
+  }
+
   .leaderboard {
     padding: 0.9rem 1rem;
   }
@@ -941,6 +1272,14 @@ body.game-ended .winner-card {
   .admin-actions {
     flex-direction: column;
     align-items: center;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 
   .winner-card {
@@ -1001,6 +1340,10 @@ body.game-ended .winner-card {
 
   .team-badge {
     width: clamp(1.85rem, 8vw, 2.5rem);
+  }
+
+  .place-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .leaderboard-secondary {

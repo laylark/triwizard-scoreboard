@@ -1,5 +1,6 @@
 "use strict";
 
+const crypto = require("node:crypto");
 const express = require("express");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -13,8 +14,17 @@ const defaultScores = {
 	ravenclaw: 0,
 	slytherin: 0,
 };
+const placePoints = {
+	1: 4,
+	2: 3,
+	3: 2,
+	4: 1,
+};
+const teamNames = Object.keys(defaultScores);
 const defaultGameState = {
-	scores: defaultScores,
+	baseScores: { ...defaultScores },
+	rounds: [],
+	scores: { ...defaultScores },
 	isGameEnded: false,
 };
 
@@ -30,27 +40,10 @@ async function ensureScoresFile() {
 	}
 }
 
-async function readGameState() {
-	await ensureScoresFile();
-
-	try {
-		const fileContents = await fs.readFile(scoresFilePath, "utf8");
-		const parsedState = JSON.parse(fileContents);
-
-		return normalizeGameState(parsedState);
-	} catch {
-		await writeGameState(defaultGameState);
-		return {
-			scores: { ...defaultScores },
-			isGameEnded: false,
-		};
-	}
-}
-
 function normalizeScores(candidateScores) {
 	const normalizedScores = { ...defaultScores };
 
-	Object.keys(defaultScores).forEach((teamName) => {
+	teamNames.forEach((teamName) => {
 		const teamScore = candidateScores?.[teamName];
 
 		if (typeof teamScore === "number" && Number.isFinite(teamScore)) {
@@ -61,13 +54,96 @@ function normalizeScores(candidateScores) {
 	return normalizedScores;
 }
 
-function normalizeGameState(candidateState) {
-	const candidateScores = candidateState?.scores ?? candidateState;
+function normalizePlacements(candidatePlacements) {
+	const normalizedPlacements = {};
+	const usedPlaces = new Set();
+
+	for (const teamName of teamNames) {
+		const place = candidatePlacements?.[teamName];
+
+		if (!Number.isInteger(place) || !(place in placePoints) || usedPlaces.has(place)) {
+			return null;
+		}
+
+		usedPlaces.add(place);
+		normalizedPlacements[teamName] = place;
+	}
+
+	return normalizedPlacements;
+}
+
+function normalizeRound(candidateRound, index) {
+	const placements = normalizePlacements(candidateRound?.placements ?? candidateRound);
+
+	if (!placements) {
+		return null;
+	}
 
 	return {
-		scores: normalizeScores(candidateScores),
+		id: typeof candidateRound?.id === "string" && candidateRound.id.trim()
+			? candidateRound.id.trim()
+			: `round-${index + 1}`,
+		label: `Round ${index + 1}`,
+		placements,
+	};
+}
+
+function normalizeRounds(candidateRounds) {
+	if (!Array.isArray(candidateRounds)) {
+		return [];
+	}
+
+	return candidateRounds.reduce((rounds, candidateRound) => {
+		const normalizedRound = normalizeRound(candidateRound, rounds.length);
+
+		if (normalizedRound) {
+			rounds.push(normalizedRound);
+		}
+
+		return rounds;
+	}, []);
+}
+
+function calculateScores(baseScores, rounds) {
+	const computedScores = { ...baseScores };
+
+	rounds.forEach((round) => {
+		teamNames.forEach((teamName) => {
+			const place = round.placements[teamName];
+			computedScores[teamName] += placePoints[place] ?? 0;
+		});
+	});
+
+	return computedScores;
+}
+
+function normalizeGameState(candidateState) {
+	const rounds = normalizeRounds(candidateState?.rounds);
+	const usesRoundModel = Array.isArray(candidateState?.rounds) || candidateState?.baseScores;
+	const baseScores = normalizeScores(
+		usesRoundModel ? candidateState?.baseScores : candidateState?.scores ?? candidateState
+	);
+
+	return {
+		baseScores,
+		rounds,
+		scores: calculateScores(baseScores, rounds),
 		isGameEnded: candidateState?.isGameEnded === true,
 	};
+}
+
+async function readGameState() {
+	await ensureScoresFile();
+
+	try {
+		const fileContents = await fs.readFile(scoresFilePath, "utf8");
+		const parsedState = JSON.parse(fileContents);
+
+		return normalizeGameState(parsedState);
+	} catch {
+		await writeGameState(defaultGameState);
+		return normalizeGameState(defaultGameState);
+	}
 }
 
 async function writeGameState(gameState) {
@@ -77,28 +153,67 @@ async function writeGameState(gameState) {
 	return normalizedGameState;
 }
 
+function ensureGameIsMutable(gameState, response) {
+	if (!gameState.isGameEnded) {
+		return true;
+	}
+
+	response.status(409).json({ error: "The game has already ended." });
+	return false;
+}
+
 app.get("/api/scores", async (_request, response) => {
 	const gameState = await readGameState();
 	response.json(gameState);
 });
 
-app.post("/api/scores/update", async (request, response) => {
-	const { teamName, pointsToAdd } = request.body ?? {};
+app.post("/api/scores/rounds", async (request, response) => {
+	const placements = normalizePlacements(request.body?.placements);
 
-	if (!(teamName in defaultScores) || !Number.isFinite(pointsToAdd)) {
-		response.status(400).json({ error: "Invalid score update payload." });
+	if (!placements) {
+		response.status(400).json({ error: "Invalid round payload." });
 		return;
 	}
 
 	const currentGameState = await readGameState();
 
-	if (currentGameState.isGameEnded) {
-		response.status(409).json({ error: "The game has already ended." });
+	if (!ensureGameIsMutable(currentGameState, response)) {
 		return;
 	}
 
-	currentGameState.scores[teamName] += pointsToAdd;
-	const updatedGameState = await writeGameState(currentGameState);
+	const updatedGameState = await writeGameState({
+		...currentGameState,
+		rounds: [
+			...currentGameState.rounds,
+			{
+				id: crypto.randomUUID(),
+				placements,
+			},
+		],
+	});
+
+	response.json(updatedGameState);
+});
+
+app.delete("/api/scores/rounds/:roundId", async (request, response) => {
+	const roundId = request.params.roundId;
+	const currentGameState = await readGameState();
+
+	if (!ensureGameIsMutable(currentGameState, response)) {
+		return;
+	}
+
+	const nextRounds = currentGameState.rounds.filter((round) => round.id !== roundId);
+
+	if (nextRounds.length === currentGameState.rounds.length) {
+		response.status(404).json({ error: "Round not found." });
+		return;
+	}
+
+	const updatedGameState = await writeGameState({
+		...currentGameState,
+		rounds: nextRounds,
+	});
 
 	response.json(updatedGameState);
 });
