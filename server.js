@@ -3,9 +3,13 @@
 const crypto = require("node:crypto");
 const express = require("express");
 const fs = require("node:fs/promises");
+const http = require("node:http");
 const path = require("node:path");
+const { Server } = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const port = process.env.PORT || 3000;
 const scoresFilePath = path.join(__dirname, "data", "scores.json");
 const defaultScores = {
@@ -192,6 +196,7 @@ app.post("/api/scores/rounds", async (request, response) => {
 		],
 	});
 
+	io.emit("scoreUpdate", updatedGameState);
 	response.json(updatedGameState);
 });
 
@@ -215,6 +220,7 @@ app.delete("/api/scores/rounds/:roundId", async (request, response) => {
 		rounds: nextRounds,
 	});
 
+	io.emit("scoreUpdate", updatedGameState);
 	response.json(updatedGameState);
 });
 
@@ -249,7 +255,7 @@ app.get("*", (_request, response) => {
 
 ensureScoresFile()
 	.then(() => {
-		app.listen(port, () => {
+		server.listen(port, () => {
 			console.log(`Triwizard scoreboard running at http://localhost:${port}`);
 		});
 	})

@@ -788,3 +788,13 @@ document.addEventListener("keydown", (event) => {
 renderAdminMode();
 	renderScores();
 fetchScores();
+
+const socket = io();
+
+socket.on("scoreUpdate", (payload) => {
+	if (state.isLoading) {
+		return;
+	}
+	applyGameState(payload);
+	renderScores();
+});
