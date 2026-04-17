@@ -192,9 +192,16 @@ function renderTeamOrder() {
 		return;
 	}
 
+	const sortedTeamNames = getSortedTeamNames();
+	const currentOrder = [...teamsContainer.children].map((child) => child.dataset.team);
+
+	if (sortedTeamNames.every((teamName, index) => teamName === currentOrder[index])) {
+		return;
+	}
+
 	const cardsByTeam = new Map([...teamCards].map((teamCard) => [teamCard.dataset.team, teamCard]));
 
-	getSortedTeamNames().forEach((teamName) => {
+	sortedTeamNames.forEach((teamName) => {
 		const teamCard = cardsByTeam.get(teamName);
 
 		if (teamCard) {

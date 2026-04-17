@@ -79,7 +79,7 @@ body::after {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  will-change: transform, opacity, background-position;
+  will-change: transform, opacity;
 }
 
 .ambient-layer-castle {
@@ -108,20 +108,14 @@ body::after {
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ambient-layer-castle::after {
-    animation: none;
-  }
-}
 .ambient-layer-glow {
   background:
-    radial-gradient(circle at 20% 25%, rgba(103, 145, 245, 0.28), transparent 18%),
-    radial-gradient(circle at 78% 18%, rgba(105, 232, 195, 0.22), transparent 17%),
-    radial-gradient(circle at 56% 68%, rgba(255, 214, 136, 0.15), transparent 15%),
-    radial-gradient(circle at 35% 78%, rgba(160, 120, 255, 0.12), transparent 14%);
-  filter: blur(10px);
-  opacity: 0.86;
-  animation: glowDrift 10s ease-in-out infinite alternate;
+    radial-gradient(circle at 20% 25%, rgba(103, 145, 245, 0.22), transparent 32%),
+    radial-gradient(circle at 78% 18%, rgba(105, 232, 195, 0.18), transparent 30%),
+    radial-gradient(circle at 56% 68%, rgba(255, 214, 136, 0.12), transparent 30%),
+    radial-gradient(circle at 35% 78%, rgba(160, 120, 255, 0.1), transparent 28%);
+  opacity: 0.8;
+  animation: glowDrift 14s ease-in-out infinite alternate;
 }
 
 .ambient-layer-sparks {
@@ -132,23 +126,20 @@ body::after {
     radial-gradient(circle, rgba(129, 232, 193, 0.86) 0 1.4px, transparent 2.2px),
     radial-gradient(circle, rgba(255, 215, 140, 0.82) 0 1px, transparent 1.8px);
   background-size: 210px 210px, 280px 280px, 240px 240px, 180px 180px;
-  background-position: 12% 100%, 82% 108%, 48% 112%, 66% 96%;
-  opacity: 0.55;
-  filter: blur(0.25px);
-  animation: sparkRise 13s linear infinite;
+  background-position: 18% 70%, 78% 60%, 52% 80%, 62% 48%;
+  opacity: 0.5;
+  animation: sparkRise 16s ease-in-out infinite;
 }
 
 .ambient-layer-trails {
   inset: 8% -12%;
   background:
-    radial-gradient(ellipse at 18% 36%, rgba(127, 171, 255, 0.24), transparent 18%),
-    radial-gradient(ellipse at 78% 42%, rgba(111, 236, 196, 0.22), transparent 16%),
-    linear-gradient(118deg, transparent 34%, rgba(255, 224, 156, 0.16) 47%, transparent 55%),
-    linear-gradient(62deg, transparent 40%, rgba(122, 163, 255, 0.14) 50%, transparent 60%);
-  filter: blur(16px);
-  opacity: 0.62;
-  transform: translate3d(0, 0, 0) rotate(-2deg);
-  animation: trailSweep 8.5s ease-in-out infinite alternate;
+    radial-gradient(ellipse at 18% 36%, rgba(127, 171, 255, 0.2), transparent 30%),
+    radial-gradient(ellipse at 78% 42%, rgba(111, 236, 196, 0.18), transparent 28%),
+    linear-gradient(118deg, transparent 30%, rgba(255, 224, 156, 0.12) 50%, transparent 60%),
+    linear-gradient(62deg, transparent 36%, rgba(122, 163, 255, 0.1) 52%, transparent 66%);
+  opacity: 0.55;
+  animation: trailSweep 10s ease-in-out infinite alternate;
 }
 
 .page {
@@ -160,11 +151,10 @@ body::after {
   padding: clamp(1.6rem, 3vw, 2.75rem);
   border: 1px solid var(--border);
   border-radius: 1.75rem;
-  /* background: */
-    /* linear-gradient(180deg, rgba(18, 27, 50, 0.95), rgba(7, 11, 21, 0.96)), */
-    /* radial-gradient(circle at top, rgba(255, 214, 134, 0.06), transparent 38%); */
+  background:
+    linear-gradient(180deg, rgba(18, 27, 50, 0.82), rgba(7, 11, 21, 0.86)),
+    radial-gradient(circle at top, rgba(255, 214, 134, 0.06), transparent 38%);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
 }
 
 .page > * {
@@ -1074,21 +1064,6 @@ body.modal-open {
   color: #83e0a9;
 }
 
-@keyframes lanternPulse {
-  0%,
-  100% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 0 24px rgba(215, 178, 105, 0.08);
-  }
-
-  50% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 0 34px rgba(215, 178, 105, 0.14);
-  }
-}
-
 @keyframes starlightDrift {
   0% {
     opacity: 0.74;
@@ -1115,18 +1090,6 @@ body.modal-open {
   100% {
     opacity: 0.42;
     transform: translate3d(-1%, 18px, 0) scale(1.08);
-  }
-}
-
-@keyframes mistSweep {
-  0% {
-    opacity: 0.24;
-    transform: translate3d(-5%, 0, 0) scaleX(1);
-  }
-
-  100% {
-    opacity: 0.38;
-    transform: translate3d(6%, -3%, 0) scaleX(1.12);
   }
 }
 
@@ -1175,43 +1138,31 @@ body.modal-open {
 
 @keyframes sparkRise {
   0% {
-    opacity: 0.24;
-    transform: translate3d(0, 8%, 0) scale(1);
-    background-position: 12% 100%, 82% 108%, 48% 112%, 66% 96%;
+    opacity: 0.22;
+    transform: translate3d(0, 6%, 0);
   }
 
   50% {
-    opacity: 0.72;
-    transform: translate3d(0, -2%, 0) scale(1.03);
-    background-position: 18% 58%, 75% 48%, 54% 52%, 60% 40%;
+    opacity: 0.65;
+    transform: translate3d(0, -2%, 0);
   }
 
   100% {
-    opacity: 0.18;
-    transform: translate3d(0, -12%, 0) scale(1.06);
-    background-position: 24% 8%, 68% -4%, 60% 0%, 54% -18%;
+    opacity: 0.22;
+    transform: translate3d(0, -10%, 0);
   }
 }
 
 @keyframes trailSweep {
   0% {
-    opacity: 0.34;
-    transform: translate3d(-4%, 1%, 0) rotate(-4deg) scale(1);
-  }
-
-  50% {
-    opacity: 0.74;
-    transform: translate3d(2%, -3%, 0) rotate(-1deg) scale(1.05);
+    opacity: 0.35;
+    transform: translate3d(-2%, 1%, 0);
   }
 
   100% {
-    opacity: 0.42;
-    transform: translate3d(6%, 2%, 0) rotate(2deg) scale(1.08);
+    opacity: 0.6;
+    transform: translate3d(2%, -1%, 0);
   }
-}
-
-.leaderboard {
-  animation: lanternPulse 5.2s ease-in-out infinite;
 }
 
 .page::after {
@@ -1219,13 +1170,11 @@ body.modal-open {
   height: 42%;
   border-radius: 50% 50% 0 0;
   background:
-    radial-gradient(circle at 22% 60%, rgba(117, 160, 255, 0.12), transparent 28%),
-    radial-gradient(circle at 78% 52%, rgba(100, 224, 183, 0.1), transparent 24%),
-    radial-gradient(circle at 50% 90%, rgba(255, 215, 132, 0.08), transparent 30%),
+    radial-gradient(circle at 22% 60%, rgba(117, 160, 255, 0.18), transparent 42%),
+    radial-gradient(circle at 78% 52%, rgba(100, 224, 183, 0.15), transparent 38%),
+    radial-gradient(circle at 50% 90%, rgba(255, 215, 132, 0.12), transparent 44%),
     linear-gradient(180deg, rgba(18, 28, 46, 0), rgba(18, 28, 46, 0.34));
-  opacity: 0.88;
-  filter: blur(26px);
-  animation: mistSweep 9s ease-in-out infinite alternate;
+  opacity: 0.7;
 }
 
 @media (max-width: 1100px) {
@@ -1371,16 +1320,35 @@ body.modal-open {
 
   .page::after {
     height: 34%;
-    filter: blur(20px);
+  }
+}
+
+@media (max-width: 700px), (hover: none) and (pointer: coarse) {
+  .ambient-layer-sparks,
+  .ambient-layer-trails,
+  .ambient-layer-glow {
+    display: none;
+  }
+
+  body::before,
+  body::after,
+  .ambient-layer-castle,
+  .ambient-layer-castle::after {
+    animation: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient-layer,
-  body::before,
-  body::after,
-  .leaderboard,
-  .page::after {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ambient-layer-sparks,
+  .ambient-layer-trails,
+  .ambient-layer-glow {
+    display: none;
   }
 }
