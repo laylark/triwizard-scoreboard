@@ -411,7 +411,7 @@ function renderRoundsPanel() {
 	state.rounds.forEach((round) => {
 		savedRoundsContainer.appendChild(createRoundCard(round));
 	});
-	}
+}
 
 function renderDeleteModal() {
 	if (!deleteRoundModal || !deleteRoundMessage) {
