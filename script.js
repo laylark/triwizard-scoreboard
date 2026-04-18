@@ -103,6 +103,8 @@ const deleteRoundModal = document.querySelector("#delete-round-modal");
 const deleteRoundMessage = document.querySelector("#delete-round-message");
 const cancelDeleteRoundButton = document.querySelector("#cancel-delete-round");
 const confirmDeleteRoundButton = document.querySelector("#confirm-delete-round");
+const birthdayOverlay = document.querySelector("#birthday-overlay");
+const birthdayDismissButton = document.querySelector("#birthday-dismiss");
 
 function createEmptyRoundDraft() {
 	return {
@@ -526,6 +528,30 @@ function renderScores() {
 	renderDeleteModal();
 }
 
+function showBirthdayEasterEgg() {
+	if (!birthdayOverlay) {
+		return;
+	}
+
+	birthdayOverlay.hidden = false;
+	void birthdayOverlay.offsetWidth;
+	birthdayOverlay.classList.add("is-active");
+	birthdayDismissButton?.focus();
+}
+
+function hideBirthdayEasterEgg() {
+	if (!birthdayOverlay) {
+		return;
+	}
+
+	birthdayOverlay.classList.remove("is-active");
+	window.setTimeout(() => {
+		if (!birthdayOverlay.classList.contains("is-active")) {
+			birthdayOverlay.hidden = true;
+		}
+	}, 280);
+}
+
 async function promptForAdminAccess() {
 	if (state.isAdmin) {
 		return;
@@ -557,6 +583,7 @@ async function promptForAdminAccess() {
 			writePersistedAdminToken(payload.token);
 			renderAdminMode();
 			renderScores();
+			showBirthdayEasterEgg();
 			return;
 		}
 
@@ -884,6 +911,16 @@ adminLoginButton?.addEventListener("click", () => {
 	promptForAdminAccess();
 });
 
+birthdayDismissButton?.addEventListener("click", () => {
+	hideBirthdayEasterEgg();
+});
+
+birthdayOverlay?.addEventListener("click", (event) => {
+	if (event.target === birthdayOverlay) {
+		hideBirthdayEasterEgg();
+	}
+});
+
 cancelDeleteRoundButton?.addEventListener("click", () => {
 	closeDeleteRoundModal();
 });
@@ -899,6 +936,11 @@ deleteRoundModal?.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+	if (event.key === "Escape" && birthdayOverlay?.classList.contains("is-active")) {
+		hideBirthdayEasterEgg();
+		return;
+	}
+
 	if (!state.pendingDeleteRoundId) {
 		return;
 	}
