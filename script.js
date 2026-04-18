@@ -845,7 +845,15 @@ async function resumeGame() {
 }
 
 teamCards.forEach((teamCard) => {
+	const badge = teamCard.querySelector(".team-badge");
+
 	teamCard.addEventListener("click", (event) => {
+		if (badge) {
+			badge.classList.remove("is-spinning");
+			void badge.offsetWidth;
+			badge.classList.add("is-spinning");
+		}
+
 		if (!state.isAdmin || state.isGameEnded) {
 			return;
 		}
@@ -864,6 +872,10 @@ teamCards.forEach((teamCard) => {
 		}
 
 		toggleDraftPlace(teamName, place);
+	});
+
+	badge?.addEventListener("animationend", () => {
+		badge.classList.remove("is-spinning");
 	});
 });
 

@@ -630,6 +630,7 @@ body.admin-mode .delete-round-button {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  perspective: 600px;
 }
 
 .score-row .score {
@@ -642,6 +643,22 @@ body.admin-mode .delete-round-button {
   height: auto;
   display: block;
   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--team-glow) 55%, transparent));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.team-badge.is-spinning {
+  animation: team-badge-spin 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes team-badge-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
 }
 
 .score {
