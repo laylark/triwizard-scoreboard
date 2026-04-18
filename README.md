@@ -68,7 +68,9 @@ For full server setup instructions including nginx config, SSL via certbot, and 
 - Click the castle button in the header to open the password prompt
 - Set `ADMIN_PASSWORD` in a local `.env` file (see `.env.example`); the server reads it on startup and verifies the prompt via `POST /api/admin/login`
 - Incorrect passwords surface an alert so the user knows to try again
-- Admin login state is persisted in `localStorage`, so reloading keeps you logged in until you click Log Out
+- On success, the server returns a SHA-256 hash of the password as a bearer token; the client stores it in `localStorage` under `triwizardAdmin` and sends `Authorization: Bearer <token>` with every mutation
+- All write endpoints (`/api/scores/rounds*`, `/api/scores/reset`, `/api/scores/end`, `/api/scores/resume`) verify the token server-side with `crypto.timingSafeEqual` and reject missing/invalid tokens with 401
+- Rotating `ADMIN_PASSWORD` on the server invalidates every previously issued token; stale clients get auto-logged-out on their next mutation attempt
 - Shared tournament state is loaded from the backend JSON file, not from the browser
 
 ## Round Workflow
@@ -82,12 +84,12 @@ For full server setup instructions including nginx config, SSL via certbot, and 
 ## API Endpoints
 
 - `GET /api/scores` - load the full tournament state, including rounds and derived totals
-- `POST /api/scores/rounds` - save a completed round with a placements payload
-- `DELETE /api/scores/rounds/:roundId` - remove a saved round and deduct its points
-- `POST /api/scores/reset` - clear all rounds and reset totals to 0
-- `POST /api/scores/end` - freeze the game and reveal the final winner
-- `POST /api/scores/resume` - reopen a concluded game so round editing can continue
-- `POST /api/admin/login` - verify an admin password against `ADMIN_PASSWORD`; returns 200 on match, 401 otherwise
+- `POST /api/scores/rounds` - save a completed round with a placements payload (requires admin bearer token)
+- `DELETE /api/scores/rounds/:roundId` - remove a saved round and deduct its points (requires admin bearer token)
+- `POST /api/scores/reset` - clear all rounds and reset totals to 0 (requires admin bearer token)
+- `POST /api/scores/end` - freeze the game and reveal the final winner (requires admin bearer token)
+- `POST /api/scores/resume` - reopen a concluded game so round editing can continue (requires admin bearer token)
+- `POST /api/admin/login` - verify an admin password against `ADMIN_PASSWORD`; returns `{ success: true, token }` on match, 401 otherwise
 
 The backend writes the current tournament state to `data/scores.json`, so all users who load the same deployed app see the same values. Existing score-only JSON files are still accepted and treated as carryover totals when the server first loads them.
 

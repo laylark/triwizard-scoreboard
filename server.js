@@ -32,8 +32,35 @@ const defaultGameState = {
 	isGameEnded: false,
 };
 
+if (!process.env.ADMIN_PASSWORD) {
+	console.error("ADMIN_PASSWORD is not set. Add it to your .env file (see .env.example).");
+	process.exit(1);
+}
+
+const ADMIN_TOKEN = crypto.createHash("sha256").update(process.env.ADMIN_PASSWORD).digest("hex");
+const ADMIN_TOKEN_BUFFER = Buffer.from(ADMIN_TOKEN, "hex");
+
 app.use(express.json());
 app.use(express.static(__dirname));
+
+function requireAdmin(request, response, next) {
+	const header = request.get("Authorization") ?? "";
+	const match = /^Bearer\s+([a-f0-9]{64})$/i.exec(header);
+
+	if (!match) {
+		response.status(401).json({ error: "Admin authentication required." });
+		return;
+	}
+
+	const presented = Buffer.from(match[1].toLowerCase(), "hex");
+
+	if (presented.length !== ADMIN_TOKEN_BUFFER.length || !crypto.timingSafeEqual(presented, ADMIN_TOKEN_BUFFER)) {
+		response.status(401).json({ error: "Admin authentication required." });
+		return;
+	}
+
+	next();
+}
 
 async function ensureScoresFile() {
 	try {
@@ -171,7 +198,7 @@ app.get("/api/scores", async (_request, response) => {
 	response.json(gameState);
 });
 
-app.post("/api/scores/rounds", async (request, response) => {
+app.post("/api/scores/rounds", requireAdmin, async (request, response) => {
 	const placements = normalizePlacements(request.body?.placements);
 
 	if (!placements) {
@@ -200,7 +227,7 @@ app.post("/api/scores/rounds", async (request, response) => {
 	response.json(updatedGameState);
 });
 
-app.delete("/api/scores/rounds/:roundId", async (request, response) => {
+app.delete("/api/scores/rounds/:roundId", requireAdmin, async (request, response) => {
 	const roundId = request.params.roundId;
 	const currentGameState = await readGameState();
 
@@ -224,13 +251,13 @@ app.delete("/api/scores/rounds/:roundId", async (request, response) => {
 	response.json(updatedGameState);
 });
 
-app.post("/api/scores/reset", async (_request, response) => {
+app.post("/api/scores/reset", requireAdmin, async (_request, response) => {
 	const gameState = await writeGameState(defaultGameState);
 	io.emit("scoreUpdate", gameState);
 	response.json(gameState);
 });
 
-app.post("/api/scores/end", async (_request, response) => {
+app.post("/api/scores/end", requireAdmin, async (_request, response) => {
 	const currentGameState = await readGameState();
 	const gameState = await writeGameState({
 		...currentGameState,
@@ -241,7 +268,7 @@ app.post("/api/scores/end", async (_request, response) => {
 	response.json(gameState);
 });
 
-app.post("/api/scores/resume", async (_request, response) => {
+app.post("/api/scores/resume", requireAdmin, async (_request, response) => {
 	const currentGameState = await readGameState();
 	const gameState = await writeGameState({
 		...currentGameState,
@@ -254,7 +281,7 @@ app.post("/api/scores/resume", async (_request, response) => {
 
 app.post("/api/admin/login", (request, response) => {
 	if (request.body?.password === process.env.ADMIN_PASSWORD) {
-		response.json({ success: true });
+		response.json({ success: true, token: ADMIN_TOKEN });
 		return;
 	}
 
@@ -264,11 +291,6 @@ app.post("/api/admin/login", (request, response) => {
 app.get("*", (_request, response) => {
 	response.sendFile(path.join(__dirname, "index.html"));
 });
-
-if (!process.env.ADMIN_PASSWORD) {
-	console.error("ADMIN_PASSWORD is not set. Add it to your .env file (see .env.example).");
-	process.exit(1);
-}
 
 ensureScoresFile()
 	.then(() => {

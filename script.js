@@ -4,24 +4,45 @@ const ADMIN_STORAGE_KEY = "triwizardAdmin";
 const SCORES_API_URL = "/api/scores";
 const ADMIN_LOGIN_URL = "/api/admin/login";
 
-function readPersistedAdmin() {
+function readPersistedAdminToken() {
 	try {
-		return window.localStorage?.getItem(ADMIN_STORAGE_KEY) === "true";
+		const value = window.localStorage?.getItem(ADMIN_STORAGE_KEY);
+		return typeof value === "string" && /^[a-f0-9]{64}$/i.test(value) ? value : null;
 	} catch {
-		return false;
+		return null;
 	}
 }
 
-function writePersistedAdmin(isAdmin) {
+function writePersistedAdminToken(token) {
 	try {
-		if (isAdmin) {
-			window.localStorage?.setItem(ADMIN_STORAGE_KEY, "true");
+		if (token) {
+			window.localStorage?.setItem(ADMIN_STORAGE_KEY, token);
 		} else {
 			window.localStorage?.removeItem(ADMIN_STORAGE_KEY);
 		}
 	} catch {
 		// Ignore storage failures (private mode, disabled storage, etc.).
 	}
+}
+
+function adminFetch(url, options = {}) {
+	const headers = { ...(options.headers ?? {}) };
+
+	if (state.adminToken) {
+		headers.Authorization = `Bearer ${state.adminToken}`;
+	}
+
+	return fetch(url, { ...options, headers });
+}
+
+function handleAuthFailure(response) {
+	if (response.status !== 401) {
+		return false;
+	}
+
+	window.alert("Your admin session has expired. Please log in again.");
+	logoutAdmin();
+	return true;
 }
 const PLACE_POINTS = {
 	1: 4,
@@ -38,8 +59,10 @@ const defaultScores = {
 	slytherin: 0,
 };
 
+const persistedAdminToken = readPersistedAdminToken();
 const state = {
-	isAdmin: readPersistedAdmin(),
+	adminToken: persistedAdminToken,
+	isAdmin: !!persistedAdminToken,
 	isLoading: false,
 	isGameEnded: false,
 	baseScores: { ...defaultScores },
@@ -522,8 +545,16 @@ async function promptForAdminAccess() {
 		});
 
 		if (response.ok) {
+			const payload = await response.json();
+
+			if (typeof payload?.token !== "string") {
+				window.alert("Login succeeded but no admin token was returned.");
+				return;
+			}
+
+			state.adminToken = payload.token;
 			state.isAdmin = true;
-			writePersistedAdmin(true);
+			writePersistedAdminToken(payload.token);
 			renderAdminMode();
 			renderScores();
 			return;
@@ -590,13 +621,17 @@ async function saveRound() {
 	renderScores();
 
 	try {
-		const response = await fetch(`${SCORES_API_URL}/rounds`, {
+		const response = await adminFetch(`${SCORES_API_URL}/rounds`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({ placements: state.draftRound }),
 		});
+
+		if (handleAuthFailure(response)) {
+			return;
+		}
 
 		if (!response.ok) {
 			throw new Error("Failed to save round.");
@@ -653,9 +688,13 @@ async function deleteRound() {
 	renderScores();
 
 	try {
-		const response = await fetch(`${SCORES_API_URL}/rounds/${encodeURIComponent(state.pendingDeleteRoundId)}`, {
+		const response = await adminFetch(`${SCORES_API_URL}/rounds/${encodeURIComponent(state.pendingDeleteRoundId)}`, {
 			method: "DELETE",
 		});
+
+		if (handleAuthFailure(response)) {
+			return;
+		}
 
 		if (!response.ok) {
 			throw new Error("Failed to delete round.");
@@ -681,9 +720,13 @@ async function resetScores() {
 	renderScores();
 
 	try {
-		const response = await fetch(`${SCORES_API_URL}/reset`, {
+		const response = await adminFetch(`${SCORES_API_URL}/reset`, {
 			method: "POST",
 		});
+
+		if (handleAuthFailure(response)) {
+			return;
+		}
 
 		if (!response.ok) {
 			throw new Error("Failed to reset scores.");
@@ -703,10 +746,11 @@ async function resetScores() {
 
 function logoutAdmin() {
 	state.isAdmin = false;
-	writePersistedAdmin(false);
+	state.adminToken = null;
+	writePersistedAdminToken(null);
 	closeDeleteRoundModal();
 	state.draftRound = createEmptyRoundDraft();
-		
+
 	renderAdminMode();
 	renderScores();
 }
@@ -720,9 +764,13 @@ async function endGame() {
 	renderScores();
 
 	try {
-		const response = await fetch(`${SCORES_API_URL}/end`, {
+		const response = await adminFetch(`${SCORES_API_URL}/end`, {
 			method: "POST",
 		});
+
+		if (handleAuthFailure(response)) {
+			return;
+		}
 
 		if (!response.ok) {
 			throw new Error("Failed to end game.");
@@ -747,9 +795,13 @@ async function resumeGame() {
 	renderScores();
 
 	try {
-		const response = await fetch(`${SCORES_API_URL}/resume`, {
+		const response = await adminFetch(`${SCORES_API_URL}/resume`, {
 			method: "POST",
 		});
+
+		if (handleAuthFailure(response)) {
+			return;
+		}
 
 		if (!response.ok) {
 			throw new Error("Failed to resume game.");
