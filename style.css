@@ -1325,21 +1325,6 @@ body.modal-open {
   }
 }
 
-@media (max-width: 700px) {
-  .ambient-layer-sparks,
-  .ambient-layer-trails,
-  .ambient-layer-glow {
-    display: none;
-  }
-
-  body::before,
-  body::after,
-  .ambient-layer-castle,
-  .ambient-layer-castle::after {
-    animation: none;
-  }
-}
-
 .birthday-overlay {
   position: fixed;
   inset: 0;
