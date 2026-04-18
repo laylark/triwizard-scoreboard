@@ -15,7 +15,7 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 20.6 or newer (for built-in `--env-file` support)
 - npm
 
 ## Project Structure
@@ -31,6 +31,13 @@ A small web scoreboard for the Triwizard Tournament houses. The UI uses a dark m
 - `docker-compose.yml` - runs the container with persistent data volume
 
 ## Run Locally
+
+Copy the example env file and set the admin password:
+
+```bash
+cp .env.example .env
+# then edit .env and set ADMIN_PASSWORD=<your password>
+```
 
 Install dependencies and start the Node server:
 
@@ -59,8 +66,9 @@ For full server setup instructions including nginx config, SSL via certbot, and 
 
 - Round controls are hidden by default
 - Click the castle button in the header to open the password prompt
-- The current admin password is `triwizard`
-- Admin login state lives only in memory for the current tab; reloading the page logs you out
+- Set `ADMIN_PASSWORD` in a local `.env` file (see `.env.example`); the server reads it on startup and verifies the prompt via `POST /api/admin/login`
+- Incorrect passwords surface an alert so the user knows to try again
+- Admin login state is persisted in `localStorage`, so reloading keeps you logged in until you click Log Out
 - Shared tournament state is loaded from the backend JSON file, not from the browser
 
 ## Round Workflow
@@ -79,6 +87,7 @@ For full server setup instructions including nginx config, SSL via certbot, and 
 - `POST /api/scores/reset` - clear all rounds and reset totals to 0
 - `POST /api/scores/end` - freeze the game and reveal the final winner
 - `POST /api/scores/resume` - reopen a concluded game so round editing can continue
+- `POST /api/admin/login` - verify an admin password against `ADMIN_PASSWORD`; returns 200 on match, 401 otherwise
 
 The backend writes the current tournament state to `data/scores.json`, so all users who load the same deployed app see the same values. Existing score-only JSON files are still accepted and treated as carryover totals when the server first loads them.
 

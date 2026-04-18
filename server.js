@@ -252,9 +252,23 @@ app.post("/api/scores/resume", async (_request, response) => {
 	response.json(gameState);
 });
 
+app.post("/api/admin/login", (request, response) => {
+	if (request.body?.password === process.env.ADMIN_PASSWORD) {
+		response.json({ success: true });
+		return;
+	}
+
+	response.status(401).json({ success: false, error: "Incorrect password." });
+});
+
 app.get("*", (_request, response) => {
 	response.sendFile(path.join(__dirname, "index.html"));
 });
+
+if (!process.env.ADMIN_PASSWORD) {
+	console.error("ADMIN_PASSWORD is not set. Add it to your .env file (see .env.example).");
+	process.exit(1);
+}
 
 ensureScoresFile()
 	.then(() => {

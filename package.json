@@ -4,7 +4,7 @@
   "private": true,
   "description": "Triwizard scoreboard with a small Node backend and JSON score storage.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --env-file=.env server.js"
   },
   "dependencies": {
     "express": "^4.21.2",

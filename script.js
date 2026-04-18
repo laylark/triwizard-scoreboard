@@ -1,8 +1,8 @@
 "use strict";
 
-const ADMIN_PASSWORD = "triwizard";
 const ADMIN_STORAGE_KEY = "triwizardAdmin";
 const SCORES_API_URL = "/api/scores";
+const ADMIN_LOGIN_URL = "/api/admin/login";
 
 function readPersistedAdmin() {
 	try {
@@ -503,18 +503,41 @@ function renderScores() {
 	renderDeleteModal();
 }
 
-function promptForAdminAccess() {
+async function promptForAdminAccess() {
 	if (state.isAdmin) {
 		return;
 	}
 
 	const enteredPassword = window.prompt("Enter admin password to manage house rounds:");
 
-	if (enteredPassword === ADMIN_PASSWORD) {
-		state.isAdmin = true;
-		writePersistedAdmin(true);
-		renderAdminMode();
-		renderScores();
+	if (enteredPassword === null || enteredPassword === "") {
+		return;
+	}
+
+	try {
+		const response = await fetch(ADMIN_LOGIN_URL, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ password: enteredPassword }),
+		});
+
+		if (response.ok) {
+			state.isAdmin = true;
+			writePersistedAdmin(true);
+			renderAdminMode();
+			renderScores();
+			return;
+		}
+
+		if (response.status === 401) {
+			window.alert("Incorrect password. Please try again.");
+			return;
+		}
+
+		window.alert("Unable to verify password. Please try again.");
+	} catch (error) {
+		console.error(error);
+		window.alert("Unable to verify password. Please try again.");
 	}
 }
 
